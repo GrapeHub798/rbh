@@ -1,41 +1,83 @@
 import {Player} from "./player.js"
 import {Gun} from "./gun.js"
+import {createWalls} from "./wall.js";
+import {State} from "./state.js";
 
+const state = new State()
+
+//state
+state.set('isPaused', false);
+
+state.addListener('isPaused', newValue => {
+    pauseGame();
+});
+
+
+//Normal Variables
 let player;
 let gun;
 let walls;
+let monster;
+let gameOverText;
 
 const backgroundColor = '#17d104';
-function createWalls() {
-    walls = new Group();
-    let w1 = new Sprite(2,0, 10,1600 );
-    walls.add(w1);
-    let w2 = new Sprite(0,2,1600, 10);
-    walls.add(w2);
-    let w3 = new Sprite(798, 0, 10, 1600);
-    walls.add(w3);
-    let w4 = new Sprite(0, 798, 1600, 10);
-    walls.add(w4);
 
-    for(let i = 0; i < walls.length; i++){
-        walls[i].immovable = true;
-        walls[i].collider = 'static';
-        walls[i].color = "#000000";
+function setup() {
+    noCursor();
+    createCanvas(800, 800);
+    player = new Player();
+    gun = new Gun();
+    walls = createWalls();
+
+    monster = new Sprite(-10, -20, 40, 40);
+    monster.diameter = 50;
+    monster.color = '#0057f8';
+    monster.stroke = '#000000';
+    walls.forEach(wall => {
+        monster.overlaps(wall);
+    })
+
+    //monster.attractTo(player.player.position.x, player.player.position.y, 1);
+}
+
+function draw() {
+    clear();
+    background(backgroundColor);
+    player.display();
+    gun.display(player.player);
+    monster.moveTowards(player.player);
+    monster.speed = 1;
+    /*
+    if (monster.collide(gun.gun)){
+        monster.remove()
+    }
+    */
+}
+
+function keyPressed() {
+    if (key == ' ') { //this means space bar, since it is a space inside of the single quotes
+        const isPaused = state.get('isPaused');
+        state.set('isPaused', !isPaused);
     }
 }
 
-    function setup (){
-        createCanvas(800, 800);
-        player = new Player();
-        gun = new Gun();
-        createWalls();
-    }
 
-    function draw (){
-        background(backgroundColor);
-        player.display()
-        gun.display(player.player)
+function pauseGame(){
+    const isPaused = state.get('isPaused');
+    if (isPaused){
+        noLoop();
+        //showGamePaused();
+        return;
     }
+    loop();
+}
 
+
+function keyReleased() {
+    player.handlePlayerDash(keyCode)
+}
+
+window.keyPressed = keyPressed;
+window.keyReleased = keyReleased;
 window.setup = setup;
 window.draw = draw;
