@@ -10,7 +10,7 @@ export class Gun{
     createGun() {
         this.gun = new Sprite();
         this.gun.diameter = 30
-        this.gun.color = '#ff0f0f';
+        this.gun.color = '#ffff00';
         this.gun.stroke = '#000000';
     }
 
