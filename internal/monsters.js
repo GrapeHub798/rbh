@@ -1,6 +1,6 @@
 //create a class
-import {MONSTER_TYPE} from "./constants.js";
 import {uuidv4} from "./helpers.js";
+import {MONSTER_TYPE} from "./monster_constants.js";
 
 export class Monster {
     monsters;
@@ -8,12 +8,29 @@ export class Monster {
     walls;
 
     constructor(walls, level) {
-        this.monsters = [];
+        this.level = level;
+        this.monsters = new Map();
         this.walls = walls;
         this.intervals = new Map();
         //get the monster from the monster type object
         const monstersToCreate = MONSTER_TYPE[level];
+
         this.generateAllMonsters(monstersToCreate)
+    }
+
+    changeLevels(newLevel){
+        this.level = newLevel;
+        this.clearIntervals()
+        this.monsters = new Map();
+        const monstersToCreate = MONSTER_TYPE[newLevel];
+        this.generateAllMonsters(monstersToCreate)
+    }
+
+    clearIntervals() {
+        for (let id of this.intervals.keys()) {
+            clearInterval(id);
+        }
+        this.intervals.clear();
     }
 
     generateAllMonsters(monsterTypeInfo){
@@ -44,42 +61,68 @@ export class Monster {
     }
 
     generateSingleMonster(singleMonster){
-        const newMonster = new Sprite(this.getMonsterRandomNumber(), this.getMonsterRandomNumber(), singleMonster.width, singleMonster.height);
+        const monsterCoords = this.generateMonsterCoordinates()
+        const newMonster = new Sprite(monsterCoords.x, monsterCoords.y, singleMonster.width, singleMonster.height);
+        const monsterId = uuidv4();
         newMonster.diameter = singleMonster.diameter;
         newMonster.color = singleMonster.color;
         newMonster.stroke = singleMonster.stroke;
         newMonster.speed = singleMonster.speed;
-        newMonster.customSpeed = singleMonster.speed;
+        newMonster.monsterSpeed = singleMonster.speed;
+        newMonster.playerDamage = singleMonster.damage;
         newMonster.overlaps(this.walls);
-        this.monsters.push(newMonster);
+        this.monsters.set(monsterId, newMonster);
     }
 
-    display(player, gun){
+    display(gameState, player, gun){
         //loop through the monsters
-        for (let idx = 0; idx < this.monsters.length; idx++){
-            this.monsters[idx].moveTowards(player.player);
-            this.monsters[idx].speed = this.monsters[idx].customSpeed;
-            if (this.monsters[idx].collide(gun.gun)){
-                this.monsters[idx].remove();
-                this.monsters.splice(idx, 1);
+        for (let [monsterId, singleMonster] of this.monsters) {
+            singleMonster.moveTowards(player.player_object);
+            singleMonster.speed = singleMonster.monsterSpeed;
+            if (singleMonster.collide(gun.gun)){
+                this.monsters.delete(monsterId)
+                singleMonster.remove();
+                this.checkForLevelCompletion(gameState)
+            }
+
+            if (singleMonster.collide(player.player_object)){
+                player.playerHit(singleMonster.playerDamage)
+                this.monsters.delete(monsterId)
+                singleMonster.remove();
+                this.checkForLevelCompletion(gameState)
             }
         }
     }
 
-    getMonsterRandomNumber() {
-        // Choose a range: 0 for -10 to -5, 1 for 805 to 810
-        const range = Math.random() < 0.5 ? 0 : 1;
-
-        if (range === 0) {
-            // Generate a random number between -10 to -5
-            return Math.floor(Math.random() * (6)) - 10;
-        } else {
-            // Generate a random number between 805 to 810
-            return Math.floor(Math.random() * (6)) + 805;
+    checkForLevelCompletion(gameState){
+        if (this.monsters.size === 0 ){
+            gameState.set('currentLevel', this.level);
         }
     }
+
+    generateMonsterCoordinates() {
+        let x, y;
+
+        // Randomly decide whether to generate X or Y within 0 to 800
+        if (Math.random() < 0.5) {
+            // If X is between 0 and 800, Y must be negative or greater than 800
+            x = Math.floor(Math.random() * 801); // X in 0 to 800
+            if (Math.random() < 0.5) {
+                y = -Math.floor(Math.random() * 10) - 1; // Y in -10 to -1
+            } else {
+                y = Math.floor(Math.random() * 10) + 801; // Y in 801 to 810
+            }
+        } else {
+            // If Y is between 0 and 800, X must be negative or greater than 800
+            y = Math.floor(Math.random() * 801); // Y in 0 to 800
+            if (Math.random() < 0.5) {
+                x = -Math.floor(Math.random() * 10) - 1; // X in -10 to -1
+            } else {
+                x = Math.floor(Math.random() * 10) + 801; // X in 801 to 810
+            }
+        }
+
+        return { x, y };
+    }
 }
-//we will pass in
-//  monster count
-//  speed
-//
+

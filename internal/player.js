@@ -1,4 +1,8 @@
+import {CANVAS_HEIGHT, CANVAS_WIDTH, PLAYER_HEIGHT, PLAYER_WIDTH} from "./constants.js";
+
 export class Player {
+    player_hp_bar;
+    player_object;
     player;
     walls;
 
@@ -13,15 +17,28 @@ export class Player {
         this.isRapidMoving = false;
         this.rapidMoveEndTime = 0;
         this.rapidMoveDirection = '';
+        this.hpStart = 100;
+        this.hpRemaining = 100;
+        this.hpWidth = 50;
 
         this.createPlayer();
     }
 
     createPlayer() {
-        this.player = new Sprite();
-        this.player.rotation = 45;
-        this.player.color = '#4e4e4e';
-        this.player.stroke = '#000000';
+        //player
+        this.player_object = new Sprite(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, PLAYER_WIDTH, PLAYER_HEIGHT);
+        this.player_object.rotation = 45;
+        this.player_object.color = '#4e4e4e';
+        this.player_object.stroke = '#000000';
+
+        //hp bar
+        this.player_hp_bar = new Sprite(CANVAS_WIDTH / 2, ((CANVAS_WIDTH / 2) - 40), this.hpWidth, 10, 's');
+        this.player_hp_bar.color = '#ff0000';
+        this.player_hp_bar.stroke = '#000000';
+
+        this.player = new Group()
+        this.player.add(this.player_object);
+        this.player.add(this.player_hp_bar);
     }
 
     handlePlayerMovement() {
@@ -34,39 +51,39 @@ export class Player {
             } else {
                 switch (this.rapidMoveDirection) {
                     case 'left':
-                        this.player.position.x -= currentSpeed;
+                        this.player_object.position.x -= currentSpeed;
                         break;
                     case 'right':
-                        this.player.position.x += currentSpeed;
+                        this.player_object.position.x += currentSpeed;
                         break;
                     case 'up':
-                        this.player.position.y -= currentSpeed;
+                        this.player_object.position.y -= currentSpeed;
                         break;
                     case 'down':
-                        this.player.position.y += currentSpeed;
+                        this.player_object.position.y += currentSpeed;
                         break;
                 }
             }
         } else {
             if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-                this.player.position.x -= currentSpeed;
+                this.player_object.position.x -= currentSpeed;
             }
             if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-                this.player.position.x += currentSpeed;
+                this.player_object.position.x += currentSpeed;
             }
             if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
-                this.player.position.y -= currentSpeed;
+                this.player_object.position.y -= currentSpeed;
             }
             if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
-                this.player.position.y += currentSpeed;
+                this.player_object.position.y += currentSpeed;
             }
             if (!keyIsPressed) {
-                this.player.speed = 0;
+                this.player_object.speed = 0;
             }
         }
     }
 
-    handlePlayerDash(keyCode){
+    handlePlayerDash(keyCode) {
         let currentKey;
         if (keyCode === LEFT_ARROW || keyCode === 65) currentKey = 'left';
         if (keyCode === RIGHT_ARROW || keyCode === 68) currentKey = 'right';
@@ -86,6 +103,21 @@ export class Player {
 
     display() {
         this.handlePlayerMovement()
-        this.player.rotation = 45;
+        this.player_object.rotation = 45;
+        this.attachHPBar()
+    }
+
+    attachHPBar() {
+        this.player_hp_bar.rotation = 0;
+        this.player_hp_bar.position.x = this.player_object.position.x;
+        this.player_hp_bar.position.y = this.player_object.position.y - 40;
+        this.player_hp_bar.collider = 'none';
+    }
+
+    playerHit(hit) {
+        // Ensure deduction doesn't take currentValueB below zero
+        this.hpRemaining = Math.max(this.hpRemaining - hit, 0);
+        // Recalculate currentValueA based on the new currentValueB
+        this.player_hp_bar.width = this.hpWidth * (this.hpRemaining / this.hpStart);
     }
 }
