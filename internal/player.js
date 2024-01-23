@@ -1,7 +1,9 @@
 export class Player {
     player;
+    walls;
 
-    constructor() {
+    constructor(walls) {
+        this.walls = walls;
         this.moveSpeed = 2;
         this.rapidMoveSpeed = 5;
         this.rapidMoveDuration = 500; // Duration in milliseconds
@@ -20,7 +22,6 @@ export class Player {
         this.player.rotation = 45;
         this.player.color = '#4e4e4e';
         this.player.stroke = '#000000';
-        this.player.collider = 'static';
     }
 
     handlePlayerMovement() {
@@ -59,6 +60,9 @@ export class Player {
             if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
                 this.player.position.y += currentSpeed;
             }
+            if (!keyIsPressed) {
+                this.player.speed = 0;
+            }
         }
     }
 
@@ -82,5 +86,6 @@ export class Player {
 
     display() {
         this.handlePlayerMovement()
+        this.player.rotation = 45;
     }
 }

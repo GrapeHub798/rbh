@@ -10,7 +10,6 @@ export function createWalls() {
     walls.add(w4);
 
     for (let i = 0; i < walls.length; i++) {
-        walls[i].immovable = true;
         walls[i].collider = 'static';
         walls[i].color = "#000000";
     }
