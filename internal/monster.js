@@ -22,6 +22,7 @@ class Siamese extends Cat {
         this.timeFrame = 2000;
         this.speed = 1;
         this.damage = 5;
+        this.hp = 5;
     }
 }
 
@@ -38,6 +39,7 @@ class Persian extends Cat {
         this.timeFrame = 3000;
         this.speed = 1.2;
         this.damage = 7;
+        this.hp = 7;
     }
 }
 
@@ -54,6 +56,7 @@ class ScottishFold extends Cat {
         this.timeFrame = 4000;
         this.speed = 1.5;
         this.damage = 10;
+        this.hp = 10;
     }
 }
 
