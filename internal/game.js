@@ -2,6 +2,7 @@ import {Player} from "./player.js"
 import {Gun} from "./gun.js"
 import {createWalls} from "./wall.js";
 import {State} from "./state.js";
+import {Monster} from "./monsters.js";
 
 const state = new State()
 
@@ -12,12 +13,11 @@ state.addListener('isPaused', newValue => {
     pauseGame();
 });
 
-
 //Normal Variables
 let player;
 let gun;
 let walls;
-let monster;
+let monsters;
 let gameOverText;
 
 const backgroundColor = '#17d104';
@@ -25,33 +25,16 @@ const backgroundColor = '#17d104';
 function setup() {
     noCursor();
     createCanvas(800, 800);
-    player = new Player();
-    gun = new Gun();
     walls = createWalls();
-
-    monster = new Sprite(-10, -20, 40, 40);
-    monster.diameter = 50;
-    monster.color = '#0057f8';
-    monster.stroke = '#000000';
-    walls.forEach(wall => {
-        monster.overlaps(wall);
-    })
-
-    //monster.attractTo(player.player.position.x, player.player.position.y, 1);
+    player = new Player(walls);
+    gun = new Gun();
+    monsters = new Monster(walls, 1);
 }
-
 function draw() {
-    clear();
     background(backgroundColor);
     player.display();
     gun.display(player.player);
-    monster.moveTowards(player.player);
-    monster.speed = 1;
-    /*
-    if (monster.collide(gun.gun)){
-        monster.remove()
-    }
-    */
+    monsters.display(player, gun);
 }
 
 function keyPressed() {
