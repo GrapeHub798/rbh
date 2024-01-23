@@ -4,6 +4,7 @@ export class Gun{
     constructor() {
         this.angle = 0;
         this.radius = 100;
+        this.damage = 5;
         this.createGun();
     }
 
@@ -12,6 +13,7 @@ export class Gun{
         this.gun.diameter = 30
         this.gun.color = '#ffff00';
         this.gun.stroke = '#000000';
+        this.gun.damage = this.damage;
     }
 
     display(player){
