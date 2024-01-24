@@ -75,6 +75,7 @@ export class Monster {
         newMonster.playerDamage = singleMonster.damage;
         newMonster.hpStart = singleMonster.hp;
         newMonster.hpRemaining = singleMonster.hp;
+        newMonster.pts = singleMonster.pts;
         newMonster.overlaps(this.walls);
         //hp bar
 
@@ -108,6 +109,8 @@ export class Monster {
                     //delete the monster and hp bar
                     this.monsters.delete(monsterId)
                     singleMonster.remove();
+
+                    gameState.set('pts', singleMonster.pts)
 
                     //hp bar
                     this.monstersHp.delete(`${monsterId}-hp`)

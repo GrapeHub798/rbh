@@ -10,6 +10,7 @@ const state = new State()
 //state
 state.set('isPaused', false);
 state.set('currentLevel', INITIAL_LEVEL )
+state.set('pts', 0 )
 
 state.addListener('isPaused', newValue => {
     pauseGame();
@@ -19,6 +20,7 @@ state.addListener('isPaused', newValue => {
 //Normal Variables
 let player;
 let gun;
+let score = 0;
 let walls;
 let monsters;
 let currentLevel = INITIAL_LEVEL;
@@ -38,12 +40,18 @@ function setup() {
     state.addListener('currentLevel', currentLevel => {
         monsters.changeLevels(currentLevel+1)
     });
+
+    state.addListener('pts', newValue => {
+        updateScore(newValue);
+    });
+
 }
 function draw() {
     background(backgroundColor);
     player.display();
     gun.display(player.player_object);
     monsters.display(state, player, gun);
+    manageScore()
 }
 
 function keyPressed() {
@@ -53,6 +61,15 @@ function keyPressed() {
     }
 }
 
+function manageScore(){
+    textSize(20);
+    fill("#FFFFFF");
+    text(score, 700, 30 );
+}
+
+function updateScore(value){
+    score += (+value);
+}
 
 function pauseGame(){
     const isPaused = state.get('isPaused');
