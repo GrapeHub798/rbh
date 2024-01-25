@@ -14,6 +14,7 @@ export class Monster {
         this.monstersHp = new Map();
         this.walls = walls;
         this.intervals = new Map();
+        this.restartingLevel = false;
         //get the monster from the monster type object
         const monstersToCreate = MONSTER_TYPE[level];
 
@@ -21,12 +22,32 @@ export class Monster {
     }
 
     changeLevels(newLevel){
-        this.level = newLevel;
-        this.clearIntervals()
+        this.softMonsterReset(newLevel);
+    }
+
+    restartLevel(level){
+        this.restartingLevel = true;
+        this.removeAllMonsters()
+        this.softMonsterReset(level)
+        this.restartingLevel = false;
+    }
+
+    softMonsterReset(level){
+        this.level = level;
+        this.clearIntervals();
         this.monsters = new Map();
         this.monstersHp = new Map();
-        const monstersToCreate = MONSTER_TYPE[newLevel];
+        const monstersToCreate = MONSTER_TYPE[level];
         this.generateAllMonsters(monstersToCreate)
+    }
+
+    removeAllMonsters(){
+        for (let [monsterId, singleMonster] of this.monsters) {
+            //find the monster's hp
+            const currentMonsterHp = this.monstersHp.get(`${monsterId}-hp`);
+            singleMonster.remove();
+            currentMonsterHp.remove();
+        }
     }
 
     clearIntervals() {
@@ -75,7 +96,7 @@ export class Monster {
         newMonster.playerDamage = singleMonster.damage;
         newMonster.hpStart = singleMonster.hp;
         newMonster.hpRemaining = singleMonster.hp;
-        newMonster.pts = singleMonster.pts;
+        newMonster.deathValue = singleMonster.deathValue;
         newMonster.overlaps(this.walls);
         //hp bar
 
@@ -97,10 +118,12 @@ export class Monster {
             singleMonster.moveTowards(player.player_object);
             singleMonster.speed = singleMonster.monsterSpeed;
 
-            currentMonsterHp.rotation = 0;
-            currentMonsterHp.position.x = singleMonster.position.x;
-            currentMonsterHp.position.y = singleMonster.position.y-40;
-            currentMonsterHp.collider = 'none';
+            if (currentMonsterHp) {
+                currentMonsterHp.rotation = 0;
+                currentMonsterHp.position.x = singleMonster.position.x;
+                currentMonsterHp.position.y = singleMonster.position.y - 40;
+                currentMonsterHp.collider = 'none';
+            }
 
             if (singleMonster.collide(gun.gun)){
                 //did the damage exceed the monster hp?
@@ -110,7 +133,7 @@ export class Monster {
                     this.monsters.delete(monsterId)
                     singleMonster.remove();
 
-                    gameState.set('pts', singleMonster.pts)
+                    gameState.set('monsterKilledPts', singleMonster.deathValue)
 
                     //hp bar
                     this.monstersHp.delete(`${monsterId}-hp`)
@@ -135,7 +158,10 @@ export class Monster {
             }
 
             if (singleMonster.collide(player.player_object)){
-                player.playerHit(singleMonster.playerDamage)
+                if (player.playerHit(gameState, singleMonster.playerDamage)){
+                    return;
+                }
+
                 //monster
                 this.monsters.delete(monsterId)
                 singleMonster.remove();
@@ -148,8 +174,8 @@ export class Monster {
     }
 
     checkForLevelCompletion(gameState){
-        if (this.monsters.size === 0 ){
-            gameState.set('currentLevel', this.level);
+        if (this.monsters.size === 0 && !this.restartingLevel){
+            gameState.set('currentLevel', this.level + 1);
         }
     }
 
