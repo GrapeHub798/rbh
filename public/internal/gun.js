@@ -27,5 +27,9 @@ export class Gun{
         // Decrease the angle for counterclockwise rotation
         this.angle -= 2.5; // Change this value to adjust the speed of rotation
     }
+
+    killGun(){
+        this.gun.remove();
+    }
 }
 

@@ -8,8 +8,8 @@ export class Player {
 
     constructor(walls) {
         this.walls = walls;
-        this.moveSpeed = 2;
-        this.rapidMoveSpeed = 5;
+        this.moveSpeed = 3;
+        this.rapidMoveSpeed = 6;
         this.rapidMoveDuration = 500; // Duration in milliseconds
         this.lastDirectionKeyReleased = '';
         this.lastKeyReleaseTime = 0;
@@ -101,7 +101,7 @@ export class Player {
         }
     }
 
-    display() {
+    display(gameState) {
         this.handlePlayerMovement()
         this.player_object.rotation = 45;
         this.attachHPBar()
@@ -114,10 +114,20 @@ export class Player {
         this.player_hp_bar.collider = 'none';
     }
 
-    playerHit(hit) {
+    playerHit(gameState, hit) {
         // Ensure deduction doesn't take currentValueB below zero
         this.hpRemaining = Math.max(this.hpRemaining - hit, 0);
         // Recalculate currentValueA based on the new currentValueB
         this.player_hp_bar.width = this.hpWidth * (this.hpRemaining / this.hpStart);
+        if (this.hpRemaining <= 0){
+            gameState.set('playerDied', 'trigger')
+            return true
+        }
+        return false
+    }
+
+    killPlayer(){
+        this.player_object.remove();
+        this.player_hp_bar.remove();
     }
 }
