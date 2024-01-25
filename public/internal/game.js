@@ -3,6 +3,8 @@ import {Gun} from "./gun.js"
 import {State} from "./state.js";
 import {Monster} from "./monsters.js";
 import {INITIAL_LEVEL} from "./constants.js";
+import {Bomb} from "./bomb.js";
+import {messagePopup} from "./messages.js";
 
 const state = new State()
 
@@ -18,7 +20,7 @@ state.addListener('isPaused', newValue => {
 
 
 //Normal Variables
-let player, gun, monsters, bricks, centerBricks, tilesGroup;
+let player, gun, monsters, bricks, centerBricks, tilesGroup, bomb;
 let score = 0;
 let currentLevel = INITIAL_LEVEL;
 let gameOverText;
@@ -38,6 +40,7 @@ function setup() {
     state.addListener('currentLevel', newLevel => {
         currentLevel = newLevel
         monsters.changeLevels(newLevel)
+        messagePopup()
     });
 
     state.addListener('monsterKilledPts', newValue => {
@@ -60,13 +63,15 @@ function killPlayer() {
 function createInitialPlayer(){
     player = new Player();
     gun = new Gun();
+    bomb = new Bomb(player);
 }
 
 function draw() {
     background(backgroundColor);
     player.display();
     gun.display(player.player_object);
-    monsters.display(state, player, gun);
+    bomb.display(player.player_object);
+    monsters.display(state, player, gun, bomb);
     manageScore()
     showLevel()
 }
@@ -75,6 +80,9 @@ function keyPressed() {
     if (key == ' ') { //this means space bar, since it is a space inside of the single quotes
         const isPaused = state.get('isPaused');
         state.set('isPaused', !isPaused);
+    }
+    if(key == 'g'){
+        bomb.startBomb(player.player_object);
     }
 }
 
@@ -89,6 +97,10 @@ function showLevel(){
     fill("#FFFFFF");
     stroke("000000")
     text(`Level: ${currentLevel}`, 17, 34 );
+}
+
+function levelPopup(){
+
 }
 
 function updateScore(value){

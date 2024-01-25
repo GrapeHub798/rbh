@@ -30,6 +30,7 @@ export class Player {
         this.player_object.rotation = 45;
         this.player_object.color = '#4e4e4e';
         this.player_object.stroke = '#000000';
+        this.player_object.layer = 500;
 
         //hp bar
         this.player_hp_bar = new Sprite();
@@ -39,6 +40,7 @@ export class Player {
         this.player_hp_bar.collider = 'static'
         this.player_hp_bar.color = '#ff0000';
         this.player_hp_bar.stroke = '#000000';
+        this.player_hp_bar.layer = 500;
 
         this.player = new Group()
         this.player.add(this.player_object);
@@ -87,7 +89,7 @@ export class Player {
         }
         camera.x = this.player_object.position.x;
         camera.y = this.player_object.position.y;
-        camera.zoom = 1.5;
+        camera.zoom = 1.2;
     }
 
     handlePlayerDash(keyCode) {
