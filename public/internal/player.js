@@ -4,10 +4,8 @@ export class Player {
     player_hp_bar;
     player_object;
     player;
-    walls;
 
-    constructor(walls) {
-        this.walls = walls;
+    constructor() {
         this.moveSpeed = 3;
         this.rapidMoveSpeed = 6;
         this.rapidMoveDuration = 500; // Duration in milliseconds
@@ -26,13 +24,19 @@ export class Player {
 
     createPlayer() {
         //player
-        this.player_object = new Sprite(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, PLAYER_WIDTH, PLAYER_HEIGHT);
+        this.player_object = new Sprite();
+        this.player_object.width = PLAYER_WIDTH;
+        this.player_object.height = PLAYER_HEIGHT;
         this.player_object.rotation = 45;
         this.player_object.color = '#4e4e4e';
         this.player_object.stroke = '#000000';
 
         //hp bar
-        this.player_hp_bar = new Sprite(CANVAS_WIDTH / 2, ((CANVAS_WIDTH / 2) - 40), this.hpWidth, 10, 's');
+        this.player_hp_bar = new Sprite();
+        this.player_hp_bar.position.y = this.player_object.position.y - 40
+        this.player_hp_bar.height = 10;
+        this.player_hp_bar.width = this.hpWidth;
+        this.player_hp_bar.collider = 'static'
         this.player_hp_bar.color = '#ff0000';
         this.player_hp_bar.stroke = '#000000';
 
@@ -81,6 +85,9 @@ export class Player {
                 this.player_object.speed = 0;
             }
         }
+        camera.x = this.player_object.position.x;
+        camera.y = this.player_object.position.y;
+        camera.zoom = 1.5;
     }
 
     handlePlayerDash(keyCode) {

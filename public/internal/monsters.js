@@ -6,15 +6,15 @@ export class Monster {
     monsters;
     monstersHp;
     intervals;
-    walls;
+    constructionMaterials;
 
-    constructor(walls, level) {
+    constructor(level, constructionMaterials) {
         this.level = level;
         this.monsters = new Map();
         this.monstersHp = new Map();
-        this.walls = walls;
         this.intervals = new Map();
         this.restartingLevel = false;
+        this.constructionMaterials = constructionMaterials;
         //get the monster from the monster type object
         const monstersToCreate = MONSTER_TYPE[level];
 
@@ -97,14 +97,23 @@ export class Monster {
         newMonster.hpStart = singleMonster.hp;
         newMonster.hpRemaining = singleMonster.hp;
         newMonster.deathValue = singleMonster.deathValue;
-        newMonster.overlaps(this.walls);
+        if (this.constructionMaterials?.length > 0){
+            this.constructionMaterials.forEach(material => {
+                newMonster.overlaps(material);
+            })
+        }
+
         //hp bar
 
         const monsterHpId = `${monsterId}-hp`;
-        const newMonsterHp = new Sprite(monsterCoords.x, monsterCoords.y - 40, 50, 10, 's');
+        const newMonsterHp = new Sprite(monsterCoords.x, monsterCoords.y - 40, 50, 10);
         newMonsterHp.color = '#ff0000';
         newMonsterHp.stroke = '#000000';
-        newMonsterHp.overlaps(this.walls);
+        if (this.constructionMaterials?.length > 0){
+            this.constructionMaterials.forEach(material => {
+                newMonsterHp.overlaps(material);
+            })
+        }
 
         this.monsters.set(monsterId, newMonster);
         this.monstersHp.set(monsterHpId, newMonsterHp);
@@ -190,19 +199,19 @@ export class Monster {
         // Randomly decide whether to generate X or Y within 0 to 800
         if (Math.random() < 0.5) {
             // If X is between 0 and 800, Y must be negative or greater than 800
-            x = Math.floor(Math.random() * 801); // X in 0 to 800
+            x = Math.floor(Math.random() * 1025); // X in 0 to 800
             if (Math.random() < 0.5) {
                 y = -Math.floor(Math.random() * 10) - 1; // Y in -10 to -1
             } else {
-                y = Math.floor(Math.random() * 10) + 801; // Y in 801 to 810
+                y = Math.floor(Math.random() * 10) + 769; // Y in 801 to 810
             }
         } else {
             // If Y is between 0 and 800, X must be negative or greater than 800
-            y = Math.floor(Math.random() * 801); // Y in 0 to 800
+            y = Math.floor(Math.random() * 769); // Y in 0 to 800
             if (Math.random() < 0.5) {
                 x = -Math.floor(Math.random() * 10) - 1; // X in -10 to -1
             } else {
-                x = Math.floor(Math.random() * 10) + 801; // X in 801 to 810
+                x = Math.floor(Math.random() * 10) + 1025; // X in 801 to 810
             }
         }
 
