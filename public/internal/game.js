@@ -40,7 +40,7 @@ function setup() {
     state.addListener('currentLevel', newLevel => {
         currentLevel = newLevel
         monsters.changeLevels(newLevel)
-        messagePopup()
+        messagePopup(newLevel, player.player_object)
     });
 
     state.addListener('monsterKilledPts', newValue => {

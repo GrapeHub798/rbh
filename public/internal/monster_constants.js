@@ -2,7 +2,7 @@
 import {CAT_TYPES, CatFactory} from "./monster.js";
 
 export const MONSTER_TYPE = {
-    1: [CatFactory.createCat(1, CAT_TYPES.SIAMESE)],
+    1: [CatFactory.createCat(20, CAT_TYPES.SIAMESE)],
     2: [CatFactory.createCat(25, CAT_TYPES.SIAMESE)],
     3: [
         CatFactory.createCat(30, CAT_TYPES.SIAMESE),
