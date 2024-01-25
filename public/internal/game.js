@@ -1,6 +1,5 @@
 import {Player} from "./player.js"
 import {Gun} from "./gun.js"
-import {createWalls} from "./wall.js";
 import {State} from "./state.js";
 import {Monster} from "./monsters.js";
 import {INITIAL_LEVEL} from "./constants.js";
@@ -19,22 +18,21 @@ state.addListener('isPaused', newValue => {
 
 
 //Normal Variables
-let player;
-let gun;
+let player, gun, monsters, bricks, centerBricks, tilesGroup;
 let score = 0;
-let walls;
-let monsters;
 let currentLevel = INITIAL_LEVEL;
 let gameOverText;
 
-const backgroundColor = '#17d104';
+const backgroundColor = '#000000';
 
 function setup() {
     noCursor();
-    createCanvas(800, 800);
-    walls = createWalls();
+    new Canvas(1024, 768, 'fullscreen');
     createInitialPlayer()
-    monsters = new Monster(walls, currentLevel);
+    showMap()
+    const constructionMaterials = [bricks]
+    monsters = new Monster(currentLevel, constructionMaterials);
+
 
     //MONSTER LISTENERS
     state.addListener('currentLevel', newLevel => {
@@ -60,7 +58,7 @@ function killPlayer() {
 }
 
 function createInitialPlayer(){
-    player = new Player(walls);
+    player = new Player();
     gun = new Gun();
 }
 
@@ -83,18 +81,69 @@ function keyPressed() {
 function manageScore(){
     textSize(20);
     fill("#FFFFFF");
-    text(`Score: ${score}`, 680, 30 );
+    text(`Score: ${score}`, 904, 34 );
 }
 
 function showLevel(){
     textSize(20);
     fill("#FFFFFF");
     stroke("000000")
-    text(`Level: ${currentLevel}`, 10, 30 );
+    text(`Level: ${currentLevel}`, 17, 34 );
 }
 
 function updateScore(value){
     score += (+value);
+}
+
+function showMap(){
+    bricks = new Group();
+    bricks.tile = '@';
+    bricks.tileSize = 32;
+    bricks.layer = 0
+    bricks.color = "rgba(81,255,0,0.29)"
+    bricks.collider = 'static'
+
+    centerBricks = new Group()
+    centerBricks.tile = '#';
+    centerBricks.tileSize = 32;
+    centerBricks.layer = 0
+    centerBricks.color = "rgba(224,135,0,0.23)"
+    centerBricks.collider = 'static'
+
+
+    tilesGroup = new Tiles(
+        [
+            '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
+            '@...............................@',
+            '@...............................@',
+            '@.....................#.........@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@......#........................@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@.....................#.........@',
+            '@...............................@',
+            '@...............................@',
+            '@...............................@',
+            '@......#........................@',
+            '@...............................@',
+            '@...............................@',
+            '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
+        ],
+        0,
+        0,
+        1,
+        1
+    );
 }
 
 function pauseGame(){
