@@ -119,7 +119,7 @@ export class Monster {
         this.monstersHp.set(monsterHpId, newMonsterHp);
     }
 
-    display(gameState, player, gun){
+    display(gameState, player, gun, bomb){
         //loop through the monsters
         for (let [monsterId, singleMonster] of this.monsters) {
             //find the monster's hp
@@ -164,6 +164,38 @@ export class Monster {
                     currentMonsterHp.position.y = singleMonster.position.y-40;
                     currentMonsterHp.collider = 'none';
                 }
+            }
+
+            if (bomb.bomb && singleMonster.collide(bomb.bomb)){
+                const damage = singleMonster.hpRemaining - bomb.bomb.damage;
+                if (damage <= 0){
+                    //delete the monster and hp bar
+                    this.monsters.delete(monsterId)
+                    singleMonster.remove();
+
+                    gameState.set('monsterKilledPts', singleMonster.deathValue)
+
+                    //hp bar
+                    this.monstersHp.delete(`${monsterId}-hp`)
+                    currentMonsterHp.remove()
+
+                    this.checkForLevelCompletion(gameState)
+                }
+
+                if (damage > 0){
+                    //adjust the monsters hp
+                    currentMonsterHp.width = this.updateMonsterHp(gun.gun.damage, singleMonster);
+
+                    //push back the monster
+                    const displacement = createVector(player.player_object.velocity.x, player.player_object.velocity.y);
+                    singleMonster.position.add(displacement);
+
+                    currentMonsterHp.rotation = 0;
+                    currentMonsterHp.position.x = singleMonster.position.x;
+                    currentMonsterHp.position.y = singleMonster.position.y-40;
+                    currentMonsterHp.collider = 'none';
+                }
+
             }
 
             if (singleMonster.collide(player.player_object)){
