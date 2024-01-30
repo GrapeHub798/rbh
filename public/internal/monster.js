@@ -18,11 +18,10 @@ class Cat {
 }
 
 class Siamese extends Cat {
-    constructor(quantity) {
+    constructor() {
         super(30);
         this.subspecies = CAT_TYPES.SIAMESE;
         this.color = '#0057f8';
-        this.quantity = quantity;
         this.timeFrame = 2000;
         this.speed = 1;
         this.damage = 10;
@@ -32,11 +31,10 @@ class Siamese extends Cat {
 }
 
 class Persian extends Cat {
-    constructor(quantity) {
+    constructor() {
         super(20);
         this.subspecies = CAT_TYPES.PERSIAN;
         this.color = '#ff637a';
-        this.quantity = quantity;
         this.timeFrame = 3000;
         this.speed = 1.2;
         this.damage = 14;
@@ -47,11 +45,10 @@ class Persian extends Cat {
 
 class ScottishFold extends Cat {
 
-    constructor(quantity) {
+    constructor() {
         super(45);
         this.subspecies = CAT_TYPES.SCOTTISHFOLD;
         this.color = '#00fbbc';
-        this.quantity = quantity;
         this.timeFrame = 4000;
         this.speed = 1.5;
         this.damage = 20;
@@ -61,11 +58,10 @@ class ScottishFold extends Cat {
 }
 
 class RussianBlue extends Cat {
-    constructor(quantity) {
+    constructor() {
         super(55);
         this.subspecies = CAT_TYPES.RUSSIANBLUE;
         this.color = '#fb6d00';
-        this.quantity = quantity;
         this.timeFrame = 5000;
         this.speed = 1.7;
         this.damage = 24;
@@ -76,11 +72,10 @@ class RussianBlue extends Cat {
 
 class Savannah extends Cat {
 
-    constructor(quantity) {
+    constructor() {
         super(15);
         this.subspecies = CAT_TYPES.SAVANNAH;
         this.color = '#4e0463';
-        this.quantity = quantity;
         this.timeFrame = 1500;
         this.speed = 2.0;
         this.damage = 30;
@@ -99,8 +94,8 @@ export class CatFactory {
         // Add more cat types here
     ]);
 
-    static createCat(quantity, type) {
+    static createCat(type) {
         const CatType = CatFactory.catTypes.get(type) || Cat;
-        return new CatType(quantity);
+        return new CatType();
     }
 }

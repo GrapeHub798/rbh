@@ -2,9 +2,10 @@ import {Player} from "./player.js"
 import {Gun} from "./gun.js"
 import {State} from "./state.js";
 import {Monster} from "./monsters.js";
-import {INITIAL_LEVEL} from "./constants.js";
+import {CANVAS_HEIGHT, CANVAS_WIDTH, INITIAL_LEVEL} from "./constants.js";
 import {Bomb} from "./bomb.js";
 import {messagePopup} from "./messages.js";
+import {preloadLevels, updateBackground} from "./background.js";
 
 const state = new State()
 
@@ -13,47 +14,28 @@ state.set('isPaused', false);
 state.set('currentLevel', INITIAL_LEVEL )
 state.set('monsterKilledPts', 0 )
 state.set('playerDied', false )
+state.set('createMonster', '')
 
-state.addListener('isPaused', newValue => {
+state.addListener('isPaused', () => {
     pauseGame();
 });
 
 
 //Normal Variables
-let player, gun, monsters, bricks, centerBricks, tilesGroup, bomb;
+let player, gun, bomb;
+let monsters, bricks, centerBricks, tilesGroup;
+let gameBackground;
+let bgX = 0;
+let bgY = 0;
 let score = 0;
 let currentLevel = INITIAL_LEVEL;
+let playerIsDead = false;
+//
+let gameTimer = null;
+let totalSeconds = 0;
 let gameOverText;
 
 const backgroundColor = '#000000';
-
-function setup() {
-    noCursor();
-    new Canvas(1024, 768, 'fullscreen');
-    createInitialPlayer()
-    showMap()
-    const constructionMaterials = [bricks]
-    monsters = new Monster(currentLevel, constructionMaterials);
-
-
-    //MONSTER LISTENERS
-    state.addListener('currentLevel', newLevel => {
-        currentLevel = newLevel
-        monsters.changeLevels(newLevel)
-        messagePopup(newLevel, player.player_object)
-    });
-
-    state.addListener('monsterKilledPts', newValue => {
-        updateScore(newValue);
-    });
-
-    state.addListener('playerDied', () => {
-        //consequences?
-        killPlayer()
-        createInitialPlayer()
-        monsters.restartLevel(currentLevel)
-    });
-}
 
 function killPlayer() {
     player.killPlayer();
@@ -64,16 +46,6 @@ function createInitialPlayer(){
     player = new Player();
     gun = new Gun();
     bomb = new Bomb(player);
-}
-
-function draw() {
-    background(backgroundColor);
-    player.display();
-    gun.display(player.player_object);
-    bomb.display(player.player_object);
-    monsters.display(state, player, gun, bomb);
-    manageScore()
-    showLevel()
 }
 
 function keyPressed() {
@@ -163,17 +135,109 @@ function pauseGame(){
     if (isPaused){
         noLoop();
         //showGamePaused();
+        stopTimer();
         return;
     }
     loop();
+
+    //pause the interval
+
 }
 
+function displayTimer(){
+    textSize(30);
+    fill("#FFFFFF");
+    stroke("000000")
+    let minutes = Math.floor(totalSeconds / 60);
+    let remainingSeconds = totalSeconds % 60;
+    const currentTimer = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    text(`${currentTimer}`, CANVAS_WIDTH/2 + 30, 37 );
+}
+
+function startTimer(){
+    if (gameTimer === null) {
+        gameTimer = setInterval(() => {
+            totalSeconds++;
+        }, 1000);
+    }
+}
+
+function stopTimer(){
+    if (gameTimer !== null) {
+        clearInterval(gameTimer);
+        gameTimer = null;
+    }
+}
+
+function resetTimer(){
+    stopTimer();
+    totalSeconds = 0;
+}
 
 function keyReleased() {
     player.handlePlayerDash(keyCode)
 }
+function preload(){
+    gameBackground = preloadLevels()
+}
+function setup() {
+    noCursor();
+    new Canvas(1024, 768);
+    createInitialPlayer()
+    //showMap()
+    const constructionMaterials = [bricks]
+    monsters = new Monster(currentLevel, state);
+
+
+    //MONSTER LISTENERS
+    state.addListener('currentLevel', newLevel => {
+        currentLevel = newLevel
+        monsters.changeLevels(newLevel)
+        messagePopup(newLevel, player.player_object)
+    });
+
+    state.addListener('monsterKilledPts', newValue => {
+        updateScore(newValue);
+    });
+
+    state.addListener('playerDied', () => {
+        //consequences?
+        killPlayer()
+        resetTimer()
+        //clear monster//
+        console.log('Player Died');
+        playerIsDead = true
+        setTimeout(() => {
+            startTimer()
+            createInitialPlayer()
+            playerIsDead = false;
+            monsters.restartLevel(currentLevel)
+        }, 2000)
+    });
+
+    state.addListener('createMonster', monsterToCreate => {
+        if (playerIsDead){ return }
+        monsters.generateSingleMonster(player.player_object, monsterToCreate)
+    });
+
+    startTimer();
+}
+
+function draw() {
+    background(backgroundColor);
+    player.display(gameBackground);
+    gun.display(player.player_object);
+    bomb.display(player.player_object);
+    updateBackground(player, gameBackground,bgX,bgY)
+    monsters.display(state, player, gun, bomb);
+    manageScore()
+    showLevel()
+    displayTimer()
+}
+
 
 window.keyPressed = keyPressed;
 window.keyReleased = keyReleased;
+window.preload = preload;
 window.setup = setup;
 window.draw = draw;

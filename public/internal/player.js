@@ -4,6 +4,7 @@ export class Player {
     player_hp_bar;
     player_object;
     player;
+    currentSpeed;
 
     constructor() {
         this.moveSpeed = 3;
@@ -48,7 +49,7 @@ export class Player {
     }
 
     handlePlayerMovement() {
-        let currentSpeed = this.isRapidMoving ? this.rapidMoveSpeed : this.moveSpeed;
+        this.currentSpeed = this.isRapidMoving ? this.rapidMoveSpeed : this.moveSpeed;
 
         if (this.isRapidMoving) {
             if (millis() > this.rapidMoveEndTime) {
@@ -57,31 +58,31 @@ export class Player {
             } else {
                 switch (this.rapidMoveDirection) {
                     case 'left':
-                        this.player_object.position.x -= currentSpeed;
+                        this.player_object.position.x -= this.currentSpeed;
                         break;
                     case 'right':
-                        this.player_object.position.x += currentSpeed;
+                        this.player_object.position.x += this.currentSpeed;
                         break;
                     case 'up':
-                        this.player_object.position.y -= currentSpeed;
+                        this.player_object.position.y -= this.currentSpeed;
                         break;
                     case 'down':
-                        this.player_object.position.y += currentSpeed;
+                        this.player_object.position.y += this.currentSpeed;
                         break;
                 }
             }
         } else {
             if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-                this.player_object.position.x -= currentSpeed;
+                this.player_object.position.x -= this.currentSpeed;
             }
             if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-                this.player_object.position.x += currentSpeed;
+                this.player_object.position.x += this.currentSpeed;
             }
             if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
-                this.player_object.position.y -= currentSpeed;
+                this.player_object.position.y -= this.currentSpeed;
             }
             if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
-                this.player_object.position.y += currentSpeed;
+                this.player_object.position.y += this.currentSpeed;
             }
             if (!keyIsPressed) {
                 this.player_object.speed = 0;
